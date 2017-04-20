@@ -39,7 +39,7 @@
 
 class Dummy {
  public:
-  Dummy(DUMMY_ARGS);  // NOLINT(runtime/explicit)
+  Dummy(int _a, double _b, char _c);
   virtual ~Dummy();
 
   // this defines the factory for Dummy
