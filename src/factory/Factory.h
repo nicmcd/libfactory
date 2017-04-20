@@ -58,7 +58,8 @@ class Factory {
 
   // this function maps the derived class name to the RegisterClass.create
   //  function that is used to call the actual constructor
-  static void registerClass(const char* _type, Constructor _constructor) {
+  static void registerClass(const std::string& _type,
+                            Constructor _constructor) {
     // add the mapping between type and constructor to the map
     //  ensure this type doesn't already exist
     bool res = constructorMap->insert(std::make_pair(
@@ -69,7 +70,7 @@ class Factory {
 
   // this function uses the constructor map to call the RegisterClass.create
   //  function
-  static BaseClass* create(const char* _type, Args ... _args) {
+  static BaseClass* create(const std::string& _type, Args ... _args) {
     // retrieve the creator function
     if (constructorMap->count(_type) > 0) {
       // use the creator function to call the constructor
@@ -100,7 +101,7 @@ class Factory {
   Factory& operator=(const Factory&) = delete;
 
   // this defines the constructor map
-  typedef std::unordered_map<const char*, Constructor> ConstructorMap;
+  typedef std::unordered_map<std::string, Constructor> ConstructorMap;
 
   // this is the static constructor map for this factory
   static ConstructorMap* constructorMap;
@@ -109,7 +110,7 @@ class Factory {
 // this initializes the static constructor map pointer for each template
 //  type that gets used
 template<class BaseClass, class ... Args> std::unordered_map<
-  const char*, BaseClass* (*)(Args...)>* Factory<
+  std::string, BaseClass* (*)(Args...)>* Factory<
   BaseClass, Args...>::constructorMap = nullptr;
 
 // this class is used as a dummy object so that derived classes can use
@@ -119,7 +120,7 @@ template<class BaseClass, class DerivedClass, class ... Args>
 class RegisterClass {
  public:
   // this constructor simply registers the class with the factory
-  explicit RegisterClass(const char* _type) {
+  explicit RegisterClass(const std::string& _type) {
     Factory<BaseClass, Args...>::get().registerClass(_type, create);
   }
 
