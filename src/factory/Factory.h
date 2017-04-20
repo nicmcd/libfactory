@@ -97,7 +97,7 @@ class Factory {
 //  type that gets used
 template<class BaseClass, class ... Args> std::unordered_map<
   const char*, BaseClass* (*)(Args...)> Factory<
-  BaseClass, Args...>::constructorMap;  // = nullptr;
+  BaseClass, Args...>::constructorMap;
 
 // this class is used as a dummy object so that derived classes can use
 //  a macro that looks like a function call to register themselves to their
