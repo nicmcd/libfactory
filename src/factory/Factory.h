@@ -58,24 +58,24 @@ class Factory {
 
   // this function maps the derived class name to the RegisterClass.create
   //  function that is used to call the actual constructor
-  static void registerClass(const char* _name, Constructor _constructor) {
-    // add the mapping between name and constructor to the map
-    //  ensure this name doesn't already exist
+  static void registerClass(const char* _type, Constructor _constructor) {
+    // add the mapping between type and constructor to the map
+    //  ensure this type doesn't already exist
     bool res = constructorMap->insert(std::make_pair(
-        _name, _constructor)).second;
+        _type, _constructor)).second;
     (void)res;  // unused if assert not enabled
     assert(res);
   }
 
   // this function uses the constructor map to call the RegisterClass.create
   //  function
-  static BaseClass* create(const char* _name, Args ... _args) {
+  static BaseClass* create(const char* _type, Args ... _args) {
     // retrieve the creator function
-    if (constructorMap->count(_name) > 0) {
+    if (constructorMap->count(_type) > 0) {
       // use the creator function to call the constructor
-      return constructorMap->at(_name)(_args...);
+      return constructorMap->at(_type)(_args...);
     } else {
-      // for missing name, return nullptr
+      // for missing type, return nullptr
       return nullptr;
     }
   }
@@ -119,8 +119,8 @@ template<class BaseClass, class DerivedClass, class ... Args>
 class RegisterClass {
  public:
   // this constructor simply registers the class with the factory
-  explicit RegisterClass(const char* _name) {
-    Factory<BaseClass, Args...>::get().registerClass(_name, create);
+  explicit RegisterClass(const char* _type) {
+    Factory<BaseClass, Args...>::get().registerClass(_type, create);
   }
 
   // this function calls the derived class's constructor
@@ -133,7 +133,7 @@ class RegisterClass {
 
 // this macro is how derived classes register themselves with their
 //  corresponding factory. this should be called in the .cc file of the class
-#define registerWithFactory(name, ...)                      \
-  static factory::RegisterClass<__VA_ARGS__> dummyObj(name)
+#define registerWithFactory(_type, ...)                      \
+  static factory::RegisterClass<__VA_ARGS__> dummyObj(_type)
 
 #endif  // FACTORY_FACTORY_H_
