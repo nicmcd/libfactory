@@ -39,7 +39,7 @@
 
 class Dummy {
  public:
-  Dummy(int _a, double _b, char _c);
+  Dummy(DUMMY_ARGS);
   virtual ~Dummy();
 
   // this defines the factory for Dummy
