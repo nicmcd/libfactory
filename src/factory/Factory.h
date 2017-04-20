@@ -63,8 +63,9 @@ class Factory {
   // this function uses the constructor map to call the RegisterClass.create
   //  function
   static BaseClass* create(const char* _name, Args ... _args) {
-    // retrieve the creator function, use it to call the constructor
+    // retrieve the creator function
     if (constructorMap.count(_name) > 0) {
+      // use the creator function to call the constructor
       return constructorMap.at(_name)(_args...);
     } else {
       // for missing name, return nullptr
@@ -111,7 +112,7 @@ class RegisterClass {
   }
 
   // this function calls the derived class's constructor
-  static BaseClass* create(Args ... _args) {
+  static BaseClass* create(Args... _args) {
     return new DerivedClass(_args...);
   }
 };
@@ -120,7 +121,7 @@ class RegisterClass {
 
 // this macro is how derived classes register themselves with their
 //  corresponding factory. this should be called in the .cc file of the class
-#define registerWithFactory(name, ...) \
+#define registerWithFactory(name, ...)                      \
   static factory::RegisterClass<__VA_ARGS__> dummyObj(name)
 
 #endif  // FACTORY_FACTORY_H_
