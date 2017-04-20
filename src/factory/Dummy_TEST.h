@@ -31,12 +31,21 @@
 #ifndef FACTORY_DUMMY_TEST_H_
 #define FACTORY_DUMMY_TEST_H_
 
+#include <cstdarg>
+
+#include "factory/Factory.h"
+
 #define DUMMY_ARGS int, double, char
 
 class Dummy {
  public:
   Dummy(int _a, double _b, char _c);
   virtual ~Dummy();
+
+  // this defines the factory for Dummy
+  static Dummy* create(const char* _name, int _a, double _b, char _c) {
+    return factory::Factory<Dummy, DUMMY_ARGS>::create(_name, _a, _b, _c);
+  }
 
   virtual double beDumb() const;
   virtual const char* name() const = 0;

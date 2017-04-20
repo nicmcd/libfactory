@@ -33,17 +33,16 @@
 #include <gtest/gtest.h>
 
 #include "factory/Dummy_TEST.h"
-#include "factory/DummyFactory_TEST.h"
 
 TEST(Factory, basic) {
   Dummy* dummy;
 
-  dummy = DummyFactory::create("big_dummy", 8, 9.0, 'z');
+  dummy = Dummy::create("big_dummy", 8, 9.0, 'z');
   ASSERT_NE(dummy, nullptr);
   ASSERT_EQ(dummy->beDumb(), 1e6 * (8 * 9.0 + 'z'));
   ASSERT_EQ(dummy->name(), "big_dummy");
   delete dummy;
 
-  dummy = DummyFactory::create("no_dummy", 8, 9.0, 'z');
+  dummy = Dummy::create("no_dummy", 8, 9.0, 'z');
   ASSERT_EQ(dummy, nullptr);
 }
