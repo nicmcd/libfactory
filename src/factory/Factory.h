@@ -49,12 +49,19 @@ class Factory {
  public:
   typedef BaseClass* (*Constructor)(Args...);
 
+  // the destructor of this class is used to delete the constructor map
+  ~Factory() {
+    if (constructorMap != nullptr) {
+      delete constructorMap;
+    }
+  }
+
   // this function maps the derived class name to the RegisterClass.create
   //  function that is used to call the actual constructor
   static void registerClass(const char* _name, Constructor _constructor) {
     // add the mapping between name and constructor to the map
     //  ensure this name doesn't already exist
-    bool res = constructorMap.insert(std::make_pair(
+    bool res = constructorMap->insert(std::make_pair(
         _name, _constructor)).second;
     (void)res;  // unused if assert not enabled
     assert(res);
@@ -64,9 +71,9 @@ class Factory {
   //  function
   static BaseClass* create(const char* _name, Args ... _args) {
     // retrieve the creator function
-    if (constructorMap.count(_name) > 0) {
+    if (constructorMap->count(_name) > 0) {
       // use the creator function to call the constructor
-      return constructorMap.at(_name)(_args...);
+      return constructorMap->at(_name)(_args...);
     } else {
       // for missing name, return nullptr
       return nullptr;
@@ -77,6 +84,11 @@ class Factory {
   static Factory& get() {
     // define the factory statically
     static Factory<BaseClass, Args...> factory;
+
+    // create the constructor map if not already created
+    if (constructorMap == nullptr) {
+      constructorMap = new ConstructorMap();
+    }
 
     // return a reference to the static factory object
     return factory;
@@ -91,14 +103,14 @@ class Factory {
   typedef std::unordered_map<const char*, Constructor> ConstructorMap;
 
   // this is the static constructor map for this factory
-  static ConstructorMap constructorMap;
+  static ConstructorMap* constructorMap;
 };
 
 // this initializes the static constructor map pointer for each template
 //  type that gets used
 template<class BaseClass, class ... Args> std::unordered_map<
-  const char*, BaseClass* (*)(Args...)> Factory<
-  BaseClass, Args...>::constructorMap;
+  const char*, BaseClass* (*)(Args...)>* Factory<
+  BaseClass, Args...>::constructorMap = nullptr;
 
 // this class is used as a dummy object so that derived classes can use
 //  a macro that looks like a function call to register themselves to their
