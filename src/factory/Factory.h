@@ -36,6 +36,7 @@
 #define FACTORY_FACTORY_H_
 
 #include <cassert>
+#include <cstdio>
 #include <cstring>
 
 #include <string>
@@ -72,7 +73,7 @@ class Factory {
   //  function
   static BaseClass* create(const std::string& _type, Args ... _args) {
     // retrieve the creator function
-    if (constructorMap->count(_type) > 0) {
+    if (constructorMap != nullptr && constructorMap->count(_type) > 0) {
       // use the creator function to call the constructor
       return constructorMap->at(_type)(_args...);
     } else {
