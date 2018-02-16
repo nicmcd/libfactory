@@ -28,21 +28,24 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "factory/Factory.h"
+#include "factory/test/BigDummyObject_TEST.h"
 
-#include <gtest/gtest.h>
+#include "factory/ObjectFactory.h"
 
-#include "factory/Dummy_TEST.h"
+static const char* kMyName = "big_dummy";
 
-TEST(Factory, basic) {
-  Dummy* dummy;
+BigDummyObject::BigDummyObject(int _a, double _b, char _c)
+    : DummyObject(_a, _b, _c) {}
 
-  dummy = Dummy::create("big_dummy", 8, 9.0, 'z');
-  ASSERT_NE(dummy, nullptr);
-  ASSERT_EQ(dummy->beDumb(), 1e6 * (8 * 9.0 + 'z'));
-  ASSERT_EQ(dummy->name(), "big_dummy");
-  delete dummy;
+BigDummyObject::~BigDummyObject() {}
 
-  dummy = Dummy::create("no_dummy", 8, 9.0, 'z');
-  ASSERT_EQ(dummy, nullptr);
+double BigDummyObject::beDumb() const {
+  return 1e6 * DummyObject::beDumb();
 }
+
+const char* BigDummyObject::name() const {
+  return kMyName;
+}
+
+registerWithObjectFactory(kMyName, DummyObject,
+                          BigDummyObject, DUMMYOBJECT_ARGS);

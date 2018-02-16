@@ -28,24 +28,22 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FACTORY_DUMMY_TEST_H_
-#define FACTORY_DUMMY_TEST_H_
+#ifndef FACTORY_TEST_DUMMYOBJECT_TEST_H_
+#define FACTORY_TEST_DUMMYOBJECT_TEST_H_
 
 #include <cstdarg>
 
-#include "factory/Factory.h"
+#include "factory/ObjectFactory.h"
 
-#define DUMMY_ARGS int, double, char
+#define DUMMYOBJECT_ARGS int, double, char
 
-class Dummy {
+class DummyObject {
  public:
-  Dummy(int _a, double _b, char _c);
-  virtual ~Dummy();
+  DummyObject(int _a, double _b, char _c);
+  virtual ~DummyObject();
 
   // this defines the factory for Dummy
-  static Dummy* create(const char* _name, int _a, double _b, char _c) {
-    return factory::Factory<Dummy, DUMMY_ARGS>::create(_name, _a, _b, _c);
-  }
+  static DummyObject* create(const char* _name, int _a, double _b, char _c);
 
   virtual double beDumb() const;
   virtual const char* name() const = 0;
@@ -56,4 +54,4 @@ class Dummy {
   char c_;
 };
 
-#endif  // FACTORY_DUMMY_TEST_H_
+#endif  // FACTORY_TEST_DUMMYOBJECT_TEST_H_

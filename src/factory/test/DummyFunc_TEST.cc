@@ -28,15 +28,11 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "factory/Dummy_TEST.h"
+#include "factory/test/DummyFunc_TEST.h"
 
-#include "factory/Factory.h"
+#include "factory/FunctionFactory.h"
 
-Dummy::Dummy(int _a, double _b, char _c)
-    : a_(_a), b_(_b), c_(_c) {}
-
-Dummy::~Dummy() {}
-
-double Dummy::beDumb() const {
-  return a_ * b_ + c_;
+DummyFunc dummyFuncRetrieve(const std::string& _name) {
+  return factory::FunctionFactory<DUMMYFUNC_RET, DUMMYFUNC_ARGS>::retrieve(
+      _name);
 }

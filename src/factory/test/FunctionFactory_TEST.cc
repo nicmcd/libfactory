@@ -28,18 +28,19 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FACTORY_BIGDUMMY_TEST_H_
-#define FACTORY_BIGDUMMY_TEST_H_
+#include "factory/FunctionFactory.h"
 
-#include "factory/Dummy_TEST.h"
+#include <gtest/gtest.h>
 
-class BigDummy : public Dummy {
- public:
-  BigDummy(DUMMY_ARGS);  // NOLINT(runtime/explicit)
-  ~BigDummy();
+#include "factory/test/DummyFunc_TEST.h"
 
-  double beDumb() const override;
-  const char* name() const override;
-};
+TEST(FunctionFactory, basic) {
+  DummyFunc dummyFunc;
 
-#endif  // FACTORY_BIGDUMMY_TEST_H_
+  dummyFunc = dummyFuncRetrieve("big_dummy");
+  ASSERT_NE(dummyFunc, nullptr);
+  ASSERT_EQ(dummyFunc(3.0, '3'), static_cast<int>(3.0 * '3'));
+
+  dummyFunc = dummyFuncRetrieve("no_dummy");
+  ASSERT_EQ(dummyFunc, nullptr);
+}

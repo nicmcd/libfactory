@@ -28,23 +28,16 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "factory/BigDummy_TEST.h"
+#ifndef FACTORY_TEST_DUMMYFUNC_TEST_H_
+#define FACTORY_TEST_DUMMYFUNC_TEST_H_
 
-#include "factory/Factory.h"
+#include <string>
 
-static const char* kMyName = "big_dummy";
+#define DUMMYFUNC_RET int
+#define DUMMYFUNC_ARGS double, char
 
-BigDummy::BigDummy(int _a, double _b, char _c)
-    : Dummy(_a, _b, _c) {}
+typedef DUMMYFUNC_RET (*DummyFunc)(DUMMYFUNC_ARGS);
 
-BigDummy::~BigDummy() {}
+DummyFunc dummyFuncRetrieve(const std::string& _name);
 
-double BigDummy::beDumb() const {
-  return 1e6 * Dummy::beDumb();
-}
-
-const char* BigDummy::name() const {
-  return kMyName;
-}
-
-registerWithFactory(kMyName, Dummy, BigDummy, DUMMY_ARGS);
+#endif  // FACTORY_TEST_DUMMYFUNC_TEST_H_

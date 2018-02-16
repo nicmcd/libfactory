@@ -28,8 +28,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FACTORY_FACTORY_H_
-#define FACTORY_FACTORY_H_
+#ifndef FACTORY_FUNCTIONFACTORY_H_
+#define FACTORY_FUNCTIONFACTORY_H_
 
 #include <cassert>
 #include <cstdio>
@@ -41,37 +41,36 @@
 
 namespace factory {
 
-template<class BaseClass, class ... Args>
-class Factory {
+template<typename Return, typename ... Args>
+class FunctionFactory {
  public:
-  typedef BaseClass* (*Constructor)(Args...);
+  typedef Return (*FunctionPtr)(Args...);
 
-  // the destructor of this class is used to delete the constructor map
-  ~Factory() {
-    if (constructorMap != nullptr) {
-      delete constructorMap;
+  // the destructor of this class is used to delete the function map
+  ~FunctionFactory() {
+    if (functionMap_ != nullptr) {
+      delete functionMap_;
     }
   }
 
-  // this function maps the derived class name to the RegisterClass.create
+  // this function maps the function name to the RegisterClass.create
   //  function that is used to call the actual constructor
-  static void registerClass(const std::string& _type,
-                            Constructor _constructor) {
-    // add the mapping between type and constructor to the map
+  static void registerFunction(const std::string& _type,
+                               FunctionPtr _function) {
+    // add the mapping between type and function pointer to the map
     //  ensure this type doesn't already exist
-    bool res = constructorMap->insert(std::make_pair(
-        _type, _constructor)).second;
+    bool res = functionMap_->insert(std::make_pair(
+        _type, _function)).second;
     (void)res;  // unused if assert not enabled
     assert(res);
   }
 
-  // this function uses the constructor map to call the RegisterClass.create
-  //  function
-  static BaseClass* create(const std::string& _type, Args ... _args) {
-    // retrieve the creator function
-    if (constructorMap != nullptr && constructorMap->count(_type) > 0) {
-      // use the creator function to call the constructor
-      return constructorMap->at(_type)(_args...);
+  // this function uses the function map to retrieve the
+  //  RegisterFunction.retrieve function
+  static FunctionPtr retrieve(const std::string& _type) {
+    // retrieve the function
+    if (functionMap_ != nullptr && functionMap_->count(_type) > 0) {
+      return functionMap_->at(_type);
     } else {
       // for missing type, return nullptr
       return nullptr;
@@ -79,13 +78,13 @@ class Factory {
   }
 
   // this static function returns the corresponding factory reference
-  static Factory& get() {
+  static FunctionFactory& get() {
     // define the factory statically
-    static Factory<BaseClass, Args...> factory;
+    static FunctionFactory<Return, Args...> factory;
 
     // create the constructor map if not already created
-    if (constructorMap == nullptr) {
-      constructorMap = new ConstructorMap();
+    if (functionMap_ == nullptr) {
+      functionMap_ = new FunctionMap();
     }
 
     // return a reference to the static factory object
@@ -93,37 +92,35 @@ class Factory {
   }
 
  private:
-  Factory() = default;
-  Factory(const Factory&) = delete;
-  Factory& operator=(const Factory&) = delete;
+  FunctionFactory() = default;
+  FunctionFactory(const FunctionFactory&) = delete;
+  FunctionFactory& operator=(const FunctionFactory&) = delete;
 
-  // this defines the constructor map
-  typedef std::unordered_map<std::string, Constructor> ConstructorMap;
+  // this defines the function map
+  typedef std::unordered_map<std::string, FunctionPtr> FunctionMap;
 
-  // this is the static constructor map for this factory
-  static ConstructorMap* constructorMap;
+  // this is the static function map for this factory
+  static FunctionMap* functionMap_;
 };
 
-// this initializes the static constructor map pointer for each template
+// this initializes the static function map pointer for each template
 //  type that gets used
-template<class BaseClass, class ... Args> std::unordered_map<
-  std::string, BaseClass* (*)(Args...)>* Factory<
-  BaseClass, Args...>::constructorMap = nullptr;
+template<typename Return, typename ... Args> std::unordered_map<
+  std::string, Return (*)(Args...)>* FunctionFactory<
+  Return, Args...>::functionMap_ = nullptr;
 
-// this class is used as a dummy object so that derived classes can use
+// this class is used as a dummy object so that function implementations can use
 //  a macro that looks like a function call to register themselves to their
 //  corresponding factory
-template<class BaseClass, class DerivedClass, class ... Args>
-class RegisterClass {
+template<typename Return, typename ... Args>
+class RegisterFunction {
  public:
-  // this constructor simply registers the class with the factory
-  explicit RegisterClass(const std::string& _type) {
-    Factory<BaseClass, Args...>::get().registerClass(_type, create);
-  }
+  typedef Return (*FunctionPtr)(Args...);
 
-  // this function calls the derived class's constructor
-  static BaseClass* create(Args... _args) {
-    return new DerivedClass(_args...);
+  // this constructor simply registers the function with the factory
+  RegisterFunction(const std::string& _type,
+                   FunctionPtr _func) {
+    FunctionFactory<Return, Args...>::get().registerFunction(_type, _func);
   }
 };
 
@@ -131,7 +128,7 @@ class RegisterClass {
 
 // this macro is how derived classes register themselves with their
 //  corresponding factory. this should be called in the .cc file of the class
-#define registerWithFactory(_type, ...)                      \
-  static factory::RegisterClass<__VA_ARGS__> dummyObj(_type)
+#define registerWithFunctionFactory(_type, _func, ...)                  \
+  static factory::RegisterFunction<__VA_ARGS__> dummyObj(_type, _func)
 
-#endif  // FACTORY_FACTORY_H_
+#endif  // FACTORY_FUNCTIONFACTORY_H_
