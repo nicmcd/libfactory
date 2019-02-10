@@ -27,7 +27,5 @@
 *.out
 *.app
 
-# Binary, Build, and Include Directories
-bin/
-bld/
-inc/
+# bazel outputs
+bazel-*

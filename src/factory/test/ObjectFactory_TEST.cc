@@ -48,7 +48,7 @@ TEST(Factory, basic) {
   dummyObject = DummyObject::create("big_dummy", 8, 9.0, 'z');
   ASSERT_NE(dummyObject, nullptr);
   ASSERT_EQ(dummyObject->beDumb(), 1e6 * (8 * 9.0 + 'z'));
-  ASSERT_EQ(dummyObject->name(), "big_dummy");
+  ASSERT_EQ(std::string(dummyObject->name()), "big_dummy");
   delete dummyObject;
 
   dummyObject = DummyObject::create("no_dummy", 8, 9.0, 'z');
