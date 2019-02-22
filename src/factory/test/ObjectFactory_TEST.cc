@@ -32,10 +32,18 @@
 
 #include <gtest/gtest.h>
 
+#include <string>
+#include <vector>
+
 #include "factory/test/DummyObject_TEST.h"
 
 TEST(Factory, basic) {
   DummyObject* dummyObject;
+
+  std::vector<std::string> names = factory::ObjectFactory<
+      DummyObject, DUMMYOBJECT_ARGS>::classes();
+  ASSERT_EQ(names.size(), 1u);
+  ASSERT_EQ(names.at(0), "big_dummy");
 
   dummyObject = DummyObject::create("big_dummy", 8, 9.0, 'z');
   ASSERT_NE(dummyObject, nullptr);

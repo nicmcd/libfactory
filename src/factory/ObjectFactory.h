@@ -38,6 +38,7 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 namespace factory {
 
@@ -90,6 +91,16 @@ class ObjectFactory {
 
     // return a reference to the static factory object
     return factory;
+  }
+
+  // this function returns all registered class names
+  static std::vector<std::string> classes() {
+    std::vector<std::string> names;
+    for (auto it = constructorMap_->cbegin(); it != constructorMap_->cend();
+         ++it) {
+      names.push_back(it->first);
+    }
+    return names;
   }
 
  private:

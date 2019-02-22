@@ -32,10 +32,18 @@
 
 #include <gtest/gtest.h>
 
+#include <string>
+#include <vector>
+
 #include "factory/test/DummyFunc_TEST.h"
 
 TEST(FunctionFactory, basic) {
   DummyFunc dummyFunc;
+
+  std::vector<std::string> names = factory::FunctionFactory<
+      DUMMYFUNC_RET, DUMMYFUNC_ARGS>::functions();
+  ASSERT_EQ(names.size(), 1u);
+  ASSERT_EQ(names.at(0), "big_dummy");
 
   dummyFunc = dummyFuncRetrieve("big_dummy");
   ASSERT_NE(dummyFunc, nullptr);

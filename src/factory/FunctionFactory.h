@@ -38,6 +38,7 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 namespace factory {
 
@@ -89,6 +90,16 @@ class FunctionFactory {
 
     // return a reference to the static factory object
     return factory;
+  }
+
+  // this function returns all registered function names
+  static std::vector<std::string> functions() {
+    std::vector<std::string> names;
+    for (auto it = functionMap_->cbegin(); it != functionMap_->cend();
+         ++it) {
+      names.push_back(it->first);
+    }
+    return names;
   }
 
  private:
