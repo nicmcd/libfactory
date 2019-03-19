@@ -20,7 +20,7 @@ COPTS = [
 LIBS = []
 
 cc_library(
-  name = "lib",
+  name = "factory",
   srcs = glob(
     ["src/**/*.cc"],
     exclude = ["src/**/*_TEST*"],
@@ -52,7 +52,7 @@ cc_library(
   ]),
   copts = COPTS,
   deps = [
-    ":lib",
+    ":factory",
     "@googletest//:gtest_main",
   ] + LIBS,
   visibility = ["//visibility:private"],
@@ -60,7 +60,7 @@ cc_library(
 )
 
 cc_test(
-  name = "test",
+  name = "factory_test",
   copts = COPTS,
   deps = [
     ":test_lib",
