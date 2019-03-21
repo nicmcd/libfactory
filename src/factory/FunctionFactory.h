@@ -62,7 +62,6 @@ class FunctionFactory {
     //  ensure this type doesn't already exist
     bool res = functionMap_->insert(std::make_pair(
         _type, _function)).second;
-    (void)res;  // unused if assert not enabled
     assert(res);
   }
 

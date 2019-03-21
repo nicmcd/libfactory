@@ -62,7 +62,6 @@ class ObjectFactory {
     //  ensure this type doesn't already exist
     bool res = constructorMap_->insert(std::make_pair(
         _type, _constructor)).second;
-    (void)res;  // unused if assert not enabled
     assert(res);
   }
 
