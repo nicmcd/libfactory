@@ -45,79 +45,57 @@ namespace factory {
 template<typename Return, typename ... Args>
 class FunctionFactory {
  public:
+  // this defines the function pointer
   typedef Return (*FunctionPtr)(Args...);
-
-  // the destructor of this class is used to delete the function map
-  ~FunctionFactory() {
-    if (functionMap_ != nullptr) {
-      delete functionMap_;
-    }
-  }
+  // this defines the function map
+  typedef std::unordered_map<std::string, FunctionPtr> FunctionMap;
 
   // this function maps the function name to the RegisterClass.create
   //  function that is used to call the actual constructor
   static void registerFunction(const std::string& _type,
                                FunctionPtr _function) {
+    FunctionMap& functionMap = get();
     // add the mapping between type and function pointer to the map
     //  ensure this type doesn't already exist
-    bool res = functionMap_->insert(std::make_pair(
-        _type, _function)).second;
+    bool res = functionMap.insert(std::make_pair(_type, _function)).second;
     assert(res);
   }
 
   // this function uses the function map to retrieve the
   //  RegisterFunction.retrieve function
   static FunctionPtr retrieve(const std::string& _type) {
+    FunctionMap& functionMap = get();
     // retrieve the function
-    if (functionMap_ != nullptr && functionMap_->count(_type) > 0) {
-      return functionMap_->at(_type);
+    if (functionMap.count(_type) > 0) {
+      return functionMap.at(_type);
     } else {
       // for missing type, return nullptr
       return nullptr;
     }
   }
 
-  // this static function returns the corresponding factory reference
-  static FunctionFactory& get() {
-    // define the factory statically
-    static FunctionFactory<Return, Args...> factory;
-
-    // create the constructor map if not already created
-    if (functionMap_ == nullptr) {
-      functionMap_ = new FunctionMap();
-    }
-
-    // return a reference to the static factory object
-    return factory;
-  }
-
   // this function returns all registered function names
   static std::vector<std::string> functions() {
+    FunctionMap& functionMap = get();
     std::vector<std::string> names;
-    for (auto it = functionMap_->cbegin(); it != functionMap_->cend();
-         ++it) {
+    for (auto it = functionMap.cbegin(); it != functionMap.cend(); ++it) {
       names.push_back(it->first);
     }
     return names;
   }
 
  private:
-  FunctionFactory() = default;
+  static FunctionMap& get() {
+    // this is the static function map for this factory
+    static FunctionMap functionMap;
+    return functionMap;
+  }
+
+  FunctionFactory() = delete;
+  ~FunctionFactory() = delete;
   FunctionFactory(const FunctionFactory&) = delete;
   FunctionFactory& operator=(const FunctionFactory&) = delete;
-
-  // this defines the function map
-  typedef std::unordered_map<std::string, FunctionPtr> FunctionMap;
-
-  // this is the static function map for this factory
-  static FunctionMap* functionMap_;
 };
-
-// this initializes the static function map pointer for each template
-//  type that gets used
-template<typename Return, typename ... Args> std::unordered_map<
-  std::string, Return (*)(Args...)>* FunctionFactory<
-  Return, Args...>::functionMap_ = nullptr;
 
 // this class is used as a dummy object so that function implementations can use
 //  a macro that looks like a function call to register themselves to their
@@ -130,7 +108,7 @@ class RegisterFunction {
   // this constructor simply registers the function with the factory
   RegisterFunction(const std::string& _type,
                    FunctionPtr _func) {
-    FunctionFactory<Return, Args...>::get().registerFunction(_type, _func);
+    FunctionFactory<Return, Args...>::registerFunction(_type, _func);
   }
 };
 

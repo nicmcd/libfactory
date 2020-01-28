@@ -37,7 +37,7 @@
 
 #include "factory/test/DummyObject_TEST.h"
 
-TEST(Factory, basic) {
+TEST(ObjectFactory, basic) {
   DummyObject* dummyObject;
 
   std::vector<std::string> names = factory::ObjectFactory<

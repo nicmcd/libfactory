@@ -45,80 +45,59 @@ namespace factory {
 template<class BaseClass, class ... Args>
 class ObjectFactory {
  public:
+  // this defines the base class constructor
   typedef BaseClass* (*Constructor)(Args...);
-
-  // the destructor of this class is used to delete the constructor map
-  ~ObjectFactory() {
-    if (constructorMap_ != nullptr) {
-      delete constructorMap_;
-    }
-  }
+  // this defines the constructor map
+  typedef std::unordered_map<std::string, Constructor> ConstructorMap;
 
   // this function maps the derived class name to the RegisterClass.create
   //  function that is used to call the actual constructor
   static void registerClass(const std::string& _type,
                             Constructor _constructor) {
+    ConstructorMap& constructorMap = get();
     // add the mapping between type and constructor to the map
     //  ensure this type doesn't already exist
-    bool res = constructorMap_->insert(std::make_pair(
-        _type, _constructor)).second;
+    bool res = constructorMap.insert(
+        std::make_pair(_type, _constructor)).second;
     assert(res);
   }
 
   // this function uses the constructor map to call the RegisterClass.create
   //  function
   static BaseClass* create(const std::string& _type, Args ... _args) {
+    ConstructorMap& constructorMap = get();
     // retrieve the creator function
-    if (constructorMap_ != nullptr && constructorMap_->count(_type) > 0) {
+    if (constructorMap.count(_type) > 0) {
       // use the creator function to call the constructor
-      return constructorMap_->at(_type)(_args...);
+      return constructorMap.at(_type)(_args...);
     } else {
       // for missing type, return nullptr
       return nullptr;
     }
   }
 
-  // this static function returns the corresponding factory reference
-  static ObjectFactory& get() {
-    // define the factory statically
-    static ObjectFactory<BaseClass, Args...> factory;
-
-    // create the constructor map if not already created
-    if (constructorMap_ == nullptr) {
-      constructorMap_ = new ConstructorMap();
-    }
-
-    // return a reference to the static factory object
-    return factory;
-  }
-
   // this function returns all registered class names
   static std::vector<std::string> classes() {
+    ConstructorMap& constructorMap = get();
     std::vector<std::string> names;
-    for (auto it = constructorMap_->cbegin(); it != constructorMap_->cend();
-         ++it) {
+    for (auto it = constructorMap.cbegin(); it != constructorMap.cend(); ++it) {
       names.push_back(it->first);
     }
     return names;
   }
 
  private:
-  ObjectFactory() = default;
+  static ConstructorMap& get() {
+    // this is the static constructor map for this factory
+    static ConstructorMap constructorMap;
+    return constructorMap;
+  }
+
+  ObjectFactory() = delete;
+  ~ObjectFactory() = delete;
   ObjectFactory(const ObjectFactory&) = delete;
   ObjectFactory& operator=(const ObjectFactory&) = delete;
-
-  // this defines the constructor map
-  typedef std::unordered_map<std::string, Constructor> ConstructorMap;
-
-  // this is the static constructor map for this factory
-  static ConstructorMap* constructorMap_;
 };
-
-// this initializes the static constructor map pointer for each template
-//  type that gets used
-template<class BaseClass, class ... Args> std::unordered_map<
-  std::string, BaseClass* (*)(Args...)>* ObjectFactory<
-  BaseClass, Args...>::constructorMap_ = nullptr;
 
 // this class is used as a dummy object so that derived classes can use
 //  a macro that looks like a function call to register themselves to their
@@ -128,7 +107,7 @@ class RegisterClass {
  public:
   // this constructor simply registers the class with the factory
   explicit RegisterClass(const std::string& _type) {
-    ObjectFactory<BaseClass, Args...>::get().registerClass(_type, create);
+    ObjectFactory<BaseClass, Args...>::registerClass(_type, create);
   }
 
   // this function calls the derived class's constructor
