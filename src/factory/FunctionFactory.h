@@ -139,6 +139,6 @@ class RegisterFunction {
 // this macro is how derived classes register themselves with their
 //  corresponding factory. this should be called in the .cc file of the class
 #define registerWithFunctionFactory(_type, _func, ...)                  \
-  static factory::RegisterFunction<__VA_ARGS__> dummyObj(_type, _func)
+  static factory::RegisterFunction<__VA_ARGS__> dummyObj##__LINE__(_type, _func)
 
 #endif  // FACTORY_FUNCTIONFACTORY_H_
