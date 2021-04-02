@@ -30,27 +30,26 @@
  */
 #include "factory/ObjectFactory.h"
 
-#include <gtest/gtest.h>
-
 #include <string>
 #include <vector>
 
 #include "factory/test/DummyObject_TEST.h"
+#include "gtest/gtest.h"
 
 TEST(ObjectFactory, basic) {
-  DummyObject* dummyObject;
+  DummyObject* dummy_object;
 
-  std::vector<std::string> names = factory::ObjectFactory<
-      DummyObject, DUMMYOBJECT_ARGS>::classes();
+  std::vector<std::string> names =
+      factory::ObjectFactory<DummyObject, DUMMYOBJECT_ARGS>::classes();
   ASSERT_EQ(names.size(), 1u);
   ASSERT_EQ(names.at(0), "big_dummy");
 
-  dummyObject = DummyObject::create("big_dummy", 8, 9.0, 'z');
-  ASSERT_NE(dummyObject, nullptr);
-  ASSERT_EQ(dummyObject->beDumb(), 1e6 * (8 * 9.0 + 'z'));
-  ASSERT_EQ(std::string(dummyObject->name()), "big_dummy");
-  delete dummyObject;
+  dummy_object = DummyObject::create("big_dummy", 8, 9.0, 'z');
+  ASSERT_NE(dummy_object, nullptr);
+  ASSERT_EQ(dummy_object->beDumb(), 1e6 * (8 * 9.0 + 'z'));
+  ASSERT_EQ(std::string(dummy_object->name()), "big_dummy");
+  delete dummy_object;
 
-  dummyObject = DummyObject::create("no_dummy", 8, 9.0, 'z');
-  ASSERT_EQ(dummyObject, nullptr);
+  dummy_object = DummyObject::create("no_dummy", 8, 9.0, 'z');
+  ASSERT_EQ(dummy_object, nullptr);
 }

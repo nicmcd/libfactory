@@ -30,12 +30,12 @@
  */
 #include <string>
 
-#include "factory/test/DummyFunc_TEST.h"
 #include "factory/FunctionFactory.h"
+#include "factory/test/DummyFunc_TEST.h"
 
 int bigDummy(double _value, char _worth) {
   return static_cast<int>(_value * _worth);
 }
 
-registerWithFunctionFactory("big_dummy", bigDummy,
-                            DUMMYFUNC_RET, DUMMYFUNC_ARGS);
+registerWithFunctionFactory("big_dummy", bigDummy, DUMMYFUNC_RET,
+                            DUMMYFUNC_ARGS);

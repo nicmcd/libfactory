@@ -34,7 +34,6 @@
 #include <cassert>
 #include <cstdio>
 #include <cstring>
-
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -42,43 +41,43 @@
 
 namespace factory {
 
-template<typename Return, typename ... Args>
+template <typename Return, typename... Args>
 class FunctionFactory {
  public:
-  // this defines the function pointer
+  // This defines the function pointer.
   typedef Return (*FunctionPtr)(Args...);
-  // this defines the function map
+  // This defines the function map.
   typedef std::unordered_map<std::string, FunctionPtr> FunctionMap;
 
-  // this function maps the function name to the RegisterClass.create
-  //  function that is used to call the actual constructor
+  // This function maps the function name to the RegisterClass.create function
+  // that is used to call the actual constructor.
   static void registerFunction(const std::string& _type,
                                FunctionPtr _function) {
-    FunctionMap& functionMap = get();
-    // add the mapping between type and function pointer to the map
-    //  ensure this type doesn't already exist
-    bool res = functionMap.insert(std::make_pair(_type, _function)).second;
+    FunctionMap& function_map = get();
+    // Adds the mapping between type and function pointer to the map ensure this
+    // type doesn't already exist.
+    bool res = function_map.insert(std::make_pair(_type, _function)).second;
     assert(res);
   }
 
-  // this function uses the function map to retrieve the
-  //  RegisterFunction.retrieve function
+  // This function uses the function map to retrieve the
+  // RegisterFunction.retrieve function.
   static FunctionPtr retrieve(const std::string& _type) {
-    FunctionMap& functionMap = get();
-    // retrieve the function
-    if (functionMap.count(_type) > 0) {
-      return functionMap.at(_type);
+    FunctionMap& function_map = get();
+    // Retrieves the function.
+    if (function_map.count(_type) > 0) {
+      return function_map.at(_type);
     } else {
-      // for missing type, return nullptr
+      // For missing type, return nullptr.
       return nullptr;
     }
   }
 
-  // this function returns all registered function names
+  // This function returns all registered function names
   static std::vector<std::string> functions() {
-    FunctionMap& functionMap = get();
+    FunctionMap& function_map = get();
     std::vector<std::string> names;
-    for (auto it = functionMap.cbegin(); it != functionMap.cend(); ++it) {
+    for (auto it = function_map.cbegin(); it != function_map.cend(); ++it) {
       names.push_back(it->first);
     }
     return names;
@@ -86,9 +85,9 @@ class FunctionFactory {
 
  private:
   static FunctionMap& get() {
-    // this is the static function map for this factory
-    static FunctionMap functionMap;
-    return functionMap;
+    // This is the static function map for this factory
+    static FunctionMap function_map;
+    return function_map;
   }
 
   FunctionFactory() = delete;
@@ -97,26 +96,25 @@ class FunctionFactory {
   FunctionFactory& operator=(const FunctionFactory&) = delete;
 };
 
-// this class is used as a dummy object so that function implementations can use
-//  a macro that looks like a function call to register themselves to their
-//  corresponding factory
-template<typename Return, typename ... Args>
+// This class is used as a dummy object so that function implementations can use
+// a macro that looks like a function call to register themselves to their
+// corresponding factory
+template <typename Return, typename... Args>
 class RegisterFunction {
  public:
   typedef Return (*FunctionPtr)(Args...);
 
-  // this constructor simply registers the function with the factory
-  RegisterFunction(const std::string& _type,
-                   FunctionPtr _func) {
+  // This constructor simply registers the function with the factory
+  RegisterFunction(const std::string& _type, FunctionPtr _func) {
     FunctionFactory<Return, Args...>::registerFunction(_type, _func);
   }
 };
 
 }  // namespace factory
 
-// this macro is how derived classes register themselves with their
-//  corresponding factory. this should be called in the .cc file of the class
-#define registerWithFunctionFactory(_type, _func, ...)                  \
-  static factory::RegisterFunction<__VA_ARGS__> dummyObj##__LINE__(_type, _func)
+// This macro is how derived classes register themselves with their
+// corresponding factory. This should be called in the .cc file of the class.
+#define registerWithFunctionFactory(_type, _func, ...) \
+  static factory::RegisterFunction<__VA_ARGS__> dummy##__LINE__(_type, _func)
 
 #endif  // FACTORY_FUNCTIONFACTORY_H_

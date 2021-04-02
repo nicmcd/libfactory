@@ -32,17 +32,15 @@
 
 #include "factory/ObjectFactory.h"
 
-DummyObject::DummyObject(int _a, double _b, char _c)
-    : a_(_a), b_(_b), c_(_c) {}
+DummyObject::DummyObject(int _a, double _b, char _c) : a_(_a), b_(_b), c_(_c) {}
 
 DummyObject::~DummyObject() {}
 
-DummyObject* DummyObject::create(
-    const char* _name, int _a, double _b, char _c) {
+DummyObject* DummyObject::create(const char* _name, int _a, double _b,
+                                 char _c) {
   return factory::ObjectFactory<DummyObject, DUMMYOBJECT_ARGS>::create(
       _name, _a, _b, _c);
 }
-
 
 double DummyObject::beDumb() const {
   return a_ * b_ + c_;

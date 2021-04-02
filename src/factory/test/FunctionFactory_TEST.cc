@@ -30,25 +30,24 @@
  */
 #include "factory/FunctionFactory.h"
 
-#include <gtest/gtest.h>
-
 #include <string>
 #include <vector>
 
 #include "factory/test/DummyFunc_TEST.h"
+#include "gtest/gtest.h"
 
 TEST(FunctionFactory, basic) {
-  DummyFunc dummyFunc;
+  DummyFunc dummy_func;
 
-  std::vector<std::string> names = factory::FunctionFactory<
-      DUMMYFUNC_RET, DUMMYFUNC_ARGS>::functions();
+  std::vector<std::string> names =
+      factory::FunctionFactory<DUMMYFUNC_RET, DUMMYFUNC_ARGS>::functions();
   ASSERT_EQ(names.size(), 1u);
   ASSERT_EQ(names.at(0), "big_dummy");
 
-  dummyFunc = dummyFuncRetrieve("big_dummy");
-  ASSERT_NE(dummyFunc, nullptr);
-  ASSERT_EQ(dummyFunc(3.0, '3'), static_cast<int>(3.0 * '3'));
+  dummy_func = dummyFuncRetrieve("big_dummy");
+  ASSERT_NE(dummy_func, nullptr);
+  ASSERT_EQ(dummy_func(3.0, '3'), static_cast<int>(3.0 * '3'));
 
-  dummyFunc = dummyFuncRetrieve("no_dummy");
-  ASSERT_EQ(dummyFunc, nullptr);
+  dummy_func = dummyFuncRetrieve("no_dummy");
+  ASSERT_EQ(dummy_func, nullptr);
 }

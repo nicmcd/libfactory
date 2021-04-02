@@ -47,5 +47,5 @@ const char* BigDummyObject::name() const {
   return kMyName;
 }
 
-registerWithObjectFactory(kMyName, DummyObject,
-                          BigDummyObject, DUMMYOBJECT_ARGS);
+registerWithObjectFactory(kMyName, DummyObject, BigDummyObject,
+                          DUMMYOBJECT_ARGS);

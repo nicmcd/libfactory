@@ -34,7 +34,6 @@
 #include <cassert>
 #include <cstdio>
 #include <cstring>
-
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -42,45 +41,46 @@
 
 namespace factory {
 
-template<class BaseClass, class ... Args>
+template <class BaseClass, class... Args>
 class ObjectFactory {
  public:
-  // this defines the base class constructor
+  // Defines the base class constructor.
   typedef BaseClass* (*Constructor)(Args...);
-  // this defines the constructor map
+  // Defines the constructor map.
   typedef std::unordered_map<std::string, Constructor> ConstructorMap;
 
-  // this function maps the derived class name to the RegisterClass.create
-  //  function that is used to call the actual constructor
+  // This function maps the derived class name to the RegisterClass.create
+  // function that is used to call the actual constructor.
   static void registerClass(const std::string& _type,
                             Constructor _constructor) {
-    ConstructorMap& constructorMap = get();
-    // add the mapping between type and constructor to the map
-    //  ensure this type doesn't already exist
-    bool res = constructorMap.insert(
-        std::make_pair(_type, _constructor)).second;
+    ConstructorMap& constructor_map = get();
+    // Adds the mapping between type and constructor to the map ensure this type
+    // doesn't already exist.
+    bool res =
+        constructor_map.insert(std::make_pair(_type, _constructor)).second;
     assert(res);
   }
 
-  // this function uses the constructor map to call the RegisterClass.create
-  //  function
-  static BaseClass* create(const std::string& _type, Args ... _args) {
-    ConstructorMap& constructorMap = get();
-    // retrieve the creator function
-    if (constructorMap.count(_type) > 0) {
-      // use the creator function to call the constructor
-      return constructorMap.at(_type)(_args...);
+  // This function uses the constructor map to call the RegisterClass.create
+  // function.
+  static BaseClass* create(const std::string& _type, Args... _args) {
+    ConstructorMap& constructor_map = get();
+    // Retrieves the creator function.
+    if (constructor_map.count(_type) > 0) {
+      // Uses the creator function to call the constructor.
+      return constructor_map.at(_type)(_args...);
     } else {
-      // for missing type, return nullptr
+      // For missing type, return nullptr.
       return nullptr;
     }
   }
 
-  // this function returns all registered class names
+  // This function returns all registered class names.
   static std::vector<std::string> classes() {
-    ConstructorMap& constructorMap = get();
+    ConstructorMap& constructor_map = get();
     std::vector<std::string> names;
-    for (auto it = constructorMap.cbegin(); it != constructorMap.cend(); ++it) {
+    for (auto it = constructor_map.cbegin(); it != constructor_map.cend();
+         ++it) {
       names.push_back(it->first);
     }
     return names;
@@ -88,9 +88,9 @@ class ObjectFactory {
 
  private:
   static ConstructorMap& get() {
-    // this is the static constructor map for this factory
-    static ConstructorMap constructorMap;
-    return constructorMap;
+    // This is the static constructor map for this factory.
+    static ConstructorMap constructor_map;
+    return constructor_map;
   }
 
   ObjectFactory() = delete;
@@ -99,18 +99,18 @@ class ObjectFactory {
   ObjectFactory& operator=(const ObjectFactory&) = delete;
 };
 
-// this class is used as a dummy object so that derived classes can use
-//  a macro that looks like a function call to register themselves to their
-//  corresponding factory
-template<class BaseClass, class DerivedClass, class ... Args>
+// This class is used as a dummy object so that derived classes can use a macro
+// that looks like a function call to register themselves to their corresponding
+// factory.
+template <class BaseClass, class DerivedClass, class... Args>
 class RegisterClass {
  public:
-  // this constructor simply registers the class with the factory
+  // This constructor registers the class with the factory.
   explicit RegisterClass(const std::string& _type) {
     ObjectFactory<BaseClass, Args...>::registerClass(_type, create);
   }
 
-  // this function calls the derived class's constructor
+  // This function calls the derived class's constructor.
   static BaseClass* create(Args... _args) {
     return new DerivedClass(_args...);
   }
@@ -118,9 +118,9 @@ class RegisterClass {
 
 }  // namespace factory
 
-// this macro is how derived classes register themselves with their
-//  corresponding factory. this should be called in the .cc file of the class
-#define registerWithObjectFactory(_type, ...)                 \
-  static factory::RegisterClass<__VA_ARGS__> dummyObj##__LINE__(_type)
+// This macro is how derived classes register themselves with their
+// corresponding factory. This should be called in the .cc file of the class.
+#define registerWithObjectFactory(_type, ...) \
+  static factory::RegisterClass<__VA_ARGS__> dummy##__LINE__(_type)
 
 #endif  // FACTORY_OBJECTFACTORY_H_
