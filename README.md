@@ -1,5 +1,7 @@
 # libfactory
-Libfactory is a library for generating abstract object factories in C++. Object factories are a popular way to create objects based from string identifiers. For example, a user may specify they want a "poodle" and the code needs to turn that into a Poodle object.
+Libfactory is a library for generating abstract object factories in C++.
+
+Object factories are a popular way to create objects based from string identifiers. For example, a user may specify they want a "poodle" and the code needs to turn that into a Poodle object.
 
 The archaic way of making object factories looks like this:
 ```c++
