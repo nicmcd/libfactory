@@ -10,5 +10,5 @@ Description: Libfactory is a library for generating abstract object factories in
 URL: https://github.com/nicmcd/libfactory
 Version: 0.1.0
 Requires: 
-Libs: -L${libdir} -lfactory
+Libs: -L${libdir} -lfactory 
 Cflags: -I${includedir}

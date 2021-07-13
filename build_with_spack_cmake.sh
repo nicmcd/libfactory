@@ -101,7 +101,8 @@ if [[ ! -z "${CLEAN}" ]]; then
 fi
 
 mkdir -p ${BUILD_DIR}
-cd ${BUILD_DIR} && ${CMAKE} \
+cd ${BUILD_DIR}
+${CMAKE} \
     -G 'Unix Makefiles' \
     -DCMAKE_INSTALL_PREFIX:STRING=${INSTALL_DIR} \
     -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
@@ -111,7 +112,8 @@ cd ${BUILD_DIR} && ${CMAKE} \
     -DCMAKE_INSTALL_RPATH:STRING=${INSTALL_RPATH} \
     -DCMAKE_PREFIX_PATH:STRING=${PREFIX_PATH} \
     ..
-cd ${BUILD_DIR} && make -j $(nproc) all && make install
+make -j $(nproc) all
+make install
 
 echo ""
 echo "Build successful :)"
