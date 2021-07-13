@@ -2,21 +2,102 @@
 
 set -e
 
-BASE=$(realpath $(dirname "$0"))
-BUILD_DIR=${BASE}/cmake-build
-INSTALL_DIR=${BASE}/cmake-local
+# Gets the directory location of this script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-# tools during build
-PKG_CONFIG_DIR=$(spack location -i pkg-config)
-export PATH="${PKG_CONFIG_DIR}/bin:${PATH}"
+function prereqs() {
+    echo "Before running this script, you must follow the directions here:"
+    echo "https://github.com/nicspack/nicspack/"
+}
+
+# Tests for spack existence
+if ! which spack; then
+    prereqs
+    exit -1
+fi
+
+# Parses command line arguments
+SPACK_TARGET=$(spack spec zlib | grep arch | tr '-' ' ' | awk '{print $NF}')
+CLEAN=
+function help() {
+    echo "usage: $0 <options>"
+    echo "  -h,--help              - show this message and exit"
+    echo "  -t=,--target=<TARGET>  - set the spack target architecture"
+    echo "  -c,--clean             - clean before building"
+}
+for i in "$@"; do
+    case $i in
+        -h|--help)
+            help
+            exit 0
+            ;;
+        -t=*|--target=*)
+            SPACK_TARGET="${i#*=}"
+            shift
+            ;;
+        -c|--clean)
+            CLEAN="YES"
+            shift
+            ;;
+        *)
+            echo "unknown argument: $i"
+            help
+            exit -1
+    esac
+done
+echo "SPACK_TARGET=${SPACK_TARGET}"
+echo "CLEAN=${SKIP_CLEAN}"
+
+# Ensure dependencies are installed
+BRANCH=cmake
+BUILD_SPEC="libfactory@${BRANCH} target=${SPACK_TARGET}"
+echo "BUILD_SPEC=${BUILD_SPEC}"
+# Ensures all dependencies are installed
+if ! spack install --only dependencies ${BUILD_SPEC}; then
+    prereqs
+    exit -1
+fi
+
+# Saves the full spec to a tmp file for later parsing
+spack spec ${BUILD_SPEC} > /tmp/libfactory_spec_${BRANCH}
+
+# Extracts the exact spec of a dependency then returns the install directory
+function location() {
+    local spec=$(grep "\^${1}@" /tmp/libfactory_spec_${BRANCH} | sed 's/\s.*^//g')
+    spack location -i ${spec}
+}
+
+function add_to_install_rpath() {
+    if [[ ";$INSTALL_RPATH;" != *";$1;"* ]]; then
+        INSTALL_RPATH="$1;${INSTALL_RPATH}"
+    fi
+}
+
+function add_to_prefix_path() {
+    if [[ ";$PREFIX_PATH;" != *";$1;"* ]]; then
+        PREFIX_PATH="$1;${PREFIX_PATH}"
+    fi
+}
+
+BUILD_DIR=${SCRIPT_DIR}/cmake-build
+INSTALL_DIR=${SCRIPT_DIR}/cmake-local
+
+INSTALL_RPATH="${INSTALL_DIR}/lib;${INSTALL_DIR}/lib64;"
+echo "INSTALL_RPATH:"
+echo "$INSTALL_RPATH"
+echo ""
+
+PREFIX_PATH=""
+echo "PREFIX_PATH:"
+echo "$PREFIX_PATH"
+echo ""
+
 CMAKE_DIR=$(spack location -i cmake)
 CMAKE=${CMAKE_DIR}/bin/cmake
 
-# dependencies
-
-# paths
-INSTALL_RPATH="${INSTALL_DIR}/lib;${INSTALL_DIR}/lib64"
-PREFIX_PATH=""
+if [[ ! -z "${CLEAN}" ]]; then
+    rm -rf ${BUILD_DIR} ${INSTALL_DIR}
+fi
 
 mkdir -p ${BUILD_DIR}
 cd ${BUILD_DIR} && ${CMAKE} \
@@ -34,3 +115,4 @@ cd ${BUILD_DIR} && make -j $(nproc) all && make install
 echo ""
 echo "Build successful :)"
 echo ""
+
